@@ -7,6 +7,10 @@ Changelog
 - Fix for use with Plone 6.1 and no plone.app.discussion available.
   [jensens]
 
+- Add a "Keyword Manager" user action link, shown to members who have the
+  "PloneKeywordManager: Use PloneKeywordManager" permission.
+  [DocentIMS]
+
 
 6.0.0 (2022-12-01)
 ------------------
