@@ -68,14 +68,21 @@ class NonAsciiKeywordsTestCase(PKMTestCase):
         self.assertEqual(search(Title="Bar"), [self.document])
 
     def test_getscoredmatches(self):
-        self.pkm.getScoredMatches("foo", ["foo", "bar", "baz"], 7, 0.6)
+        res = self.pkm.getScoredMatches("foo", ["foo", "food", "bar", "baz"], 7, 0.5)
+        # An exact/substring match is returned; an unrelated term is not.
+        # Holds for both the Levenshtein and the difflib fallback paths.
+        self.assertIn("foo", res)
+        self.assertNotIn("bar", res)
 
-    @unittest.skip("flaky test, randomly fails")
     def test_monovalued_keyword(self):
-        # use language only because it is the only monovalued field available by default
-        self.portal.portal_catalog.addIndex("Language", "KeywordIndex")
+        # Language is the only monovalued field available by default. The
+        # previous version added a 'Language' KeywordIndex (which collides
+        # with Plone's built-in Language FieldIndex) and never reindexed the
+        # document - that is what made it "flaky". Reuse the existing index
+        # and reindex so the change is found deterministically.
         self.document.language = "en"
-        self._action_change("en", "en-US", field="Language")
+        self.document.reindexObject()
+        self._action_change(["en"], "en-US", field="Language")
         self.assertEqual(self.document.language, "en-US")
 
     def test_discussion_indexes_updated(self):

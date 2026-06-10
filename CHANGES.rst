@@ -12,6 +12,22 @@ Changelog
   get it via the profile upgrade step to 6001 (no reinstall needed).
   [DocentIMS]
 
+- Bug fix: the accessor-name heuristic used ``str.lstrip("get_")``, which
+  strips a character set rather than a prefix and mangled snake_case
+  accessors (e.g. ``get_text`` -> ``xt``). Replaced with a prefix-aware
+  helper ``_attr_from_accessor``.
+  [DocentIMS]
+
+- Tests: cover the ``prefs_keywords_view`` ``__call__`` flow (empty keywords,
+  invalid field, missing change-to, merge, delete), assert ``getScoredMatches``
+  results, fix and re-enable the previously skipped monovalued-field test,
+  and add regression tests for the accessor-name fix.
+  [DocentIMS]
+
+- CI: test against Plone 6.2 on Python 3.11/3.12 and update the GitHub
+  Actions (checkout@v5, setup-plone@v3) off the deprecated Node 20 runtime.
+  [DocentIMS]
+
 
 6.0.0 (2022-12-01)
 ------------------

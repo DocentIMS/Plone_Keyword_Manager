@@ -31,6 +31,26 @@ except ImportError:
     USE_LEVENSHTEIN = False
 
 
+def _attr_from_accessor(field_name):
+    """Map an accessor name to its attribute name.
+
+    Strips a ``get`` / ``get_`` prefix (when present) and lower-cases the
+    first character, e.g. ``getSubject`` and ``get_subject`` both map to
+    ``subject``.
+
+    The previous implementation used ``field_name.lstrip("get_")``, which
+    strips a *character set* rather than a prefix and therefore mangled
+    snake_case accessors (``"get_text".lstrip("get_") == "xt"``).
+    """
+    if field_name.startswith("get_"):
+        field_name = field_name[4:]
+    elif field_name.startswith("get"):
+        field_name = field_name[3:]
+    if field_name:
+        field_name = field_name[0].lower() + field_name[1:]
+    return field_name
+
+
 @interface.implementer(IKeywordManager)
 class KeywordManager:
     """A utility to manage keywords within Plone."""
@@ -233,10 +253,7 @@ class KeywordManager:
 
         # Dexterity
         if IDexterityContent.providedBy(obj):
-            if fieldName.startswith("get"):
-                fieldName = fieldName.lstrip("get_")
-            # heuristics
-            fieldName = fieldName[0].lower() + fieldName[1:]
+            fieldName = _attr_from_accessor(fieldName)
             return lambda value: setattr(aq_base(obj), fieldName, value)
 
         # Always reindex discussion objects, since their values
@@ -250,8 +267,7 @@ class KeywordManager:
         if field:
             fieldObj = field(fieldName) or field(fieldName.lower())
             if not fieldObj and fieldName.startswith("get"):
-                fieldName = fieldName.lstrip("get_")
-                fieldName = fieldName[0].lower() + fieldName[1:]
+                fieldName = _attr_from_accessor(fieldName)
                 fieldObj = obj.getField(fieldName)
             if fieldObj is not None:
                 return fieldObj.getMutator(obj)
@@ -263,8 +279,7 @@ class KeywordManager:
         fieldName = self.fieldNameForIndex(indexName)
         fieldVal = getattr(obj, fieldName, ())
         if not fieldVal and fieldName.startswith("get"):
-            fieldName = fieldName.lstrip("get_")
-            fieldName = fieldName[0].lower() + fieldName[1:]
+            fieldName = _attr_from_accessor(fieldName)
             fieldVal = getattr(obj, fieldName, ())
 
         if callable(fieldVal):
