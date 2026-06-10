@@ -216,13 +216,13 @@ test-ignore-warnings: ${TEST_PREREQUISITES} ${TESTRUNNER_SENTINEL}  ## run tests
 BLACK_SENTINEL=${SENTINELFOLDER}pip-black.sentinel
 ${BLACK_SENTINEL}: ${PREPARE_TARGET}
 	@echo "$(OK_COLOR)Install black$(NO_COLOR)"
-	@${PYBIN}pip install -c ${CONSTRAINTS_MXDEV} black
+	@${PYBIN}pip install -c ${CONSTRAINTS_MXDEV} "black==26.5.1"
 	@touch ${BLACK_SENTINEL}
 
 ISORT_SENTINEL=${SENTINELFOLDER}pip-isort.sentinel
 ${ISORT_SENTINEL}: ${PREPARE_TARGET}
 	@echo "$(OK_COLOR)Install isort$(NO_COLOR)"
-	@${PYBIN}pip install -c ${CONSTRAINTS_MXDEV} isort
+	@${PYBIN}pip install -c ${CONSTRAINTS_MXDEV} "isort==8.0.1"
 	@touch ${ISORT_SENTINEL}
 
 ZPRETTY_SENTINEL=${SENTINELFOLDER}pip-zpretty.sentinel
