@@ -1,10 +1,10 @@
 from plone import api
 from plone.app.discussion.interfaces import IConversation
 from plone.app.discussion.interfaces import IDiscussionSettings
+from plone.registry.interfaces import IRegistry
 from Products.PloneKeywordManager.tests.base import PKMTestCase
 from zope.component import createObject
-
-import unittest
+from zope.component import getUtility
 
 
 class NonAsciiKeywordsTestCase(PKMTestCase):
@@ -68,17 +68,29 @@ class NonAsciiKeywordsTestCase(PKMTestCase):
         self.assertEqual(search(Title="Bar"), [self.document])
 
     def test_getscoredmatches(self):
-        self.pkm.getScoredMatches("foo", ["foo", "bar", "baz"], 7, 0.6)
+        res = self.pkm.getScoredMatches("foo", ["foo", "food", "bar", "baz"], 7, 0.5)
+        # An exact/substring match is returned; an unrelated term is not.
+        # Holds for both the Levenshtein and the difflib fallback paths.
+        self.assertIn("foo", res)
+        self.assertNotIn("bar", res)
 
-    @unittest.skip("flaky test, randomly fails")
     def test_monovalued_keyword(self):
-        # use language only because it is the only monovalued field available by default
-        self.portal.portal_catalog.addIndex("Language", "KeywordIndex")
+        # 'language' is a monovalued field. Plone 6.2 ships no 'Language'
+        # catalog index by default, so add a FieldIndex on the attribute and
+        # reindex, then change it through the keyword manager. (The old version
+        # was "flaky" because it added a colliding index and never reindexed.)
+        catalog = self.portal.portal_catalog
+        if "language" not in catalog.indexes():
+            catalog.addIndex("language", "FieldIndex")
         self.document.language = "en"
-        self._action_change("en", "en-US", field="Language")
+        self.document.reindexObject()
+        self._action_change(["en"], "en-US", field="language")
         self.assertEqual(self.document.language, "en-US")
 
     def test_discussion_indexes_updated(self):
+        # The bare test site has no discussion settings records; register them
+        # before enabling discussion globally.
+        getUtility(IRegistry).registerInterface(IDiscussionSettings)
         # Allow discussion
         api.portal.set_registry_record(
             name="globally_enabled",
