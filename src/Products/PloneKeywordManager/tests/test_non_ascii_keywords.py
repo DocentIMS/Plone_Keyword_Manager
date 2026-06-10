@@ -1,10 +1,10 @@
 from plone import api
 from plone.app.discussion.interfaces import IConversation
 from plone.app.discussion.interfaces import IDiscussionSettings
+from plone.registry.interfaces import IRegistry
 from Products.PloneKeywordManager.tests.base import PKMTestCase
 from zope.component import createObject
-
-import unittest
+from zope.component import getUtility
 
 
 class NonAsciiKeywordsTestCase(PKMTestCase):
@@ -75,17 +75,22 @@ class NonAsciiKeywordsTestCase(PKMTestCase):
         self.assertNotIn("bar", res)
 
     def test_monovalued_keyword(self):
-        # Language is the only monovalued field available by default. The
-        # previous version added a 'Language' KeywordIndex (which collides
-        # with Plone's built-in Language FieldIndex) and never reindexed the
-        # document - that is what made it "flaky". Reuse the existing index
-        # and reindex so the change is found deterministically.
+        # 'language' is a monovalued field. Plone 6.2 ships no 'Language'
+        # catalog index by default, so add a FieldIndex on the attribute and
+        # reindex, then change it through the keyword manager. (The old version
+        # was "flaky" because it added a colliding index and never reindexed.)
+        catalog = self.portal.portal_catalog
+        if "language" not in catalog.indexes():
+            catalog.addIndex("language", "FieldIndex")
         self.document.language = "en"
         self.document.reindexObject()
-        self._action_change(["en"], "en-US", field="Language")
+        self._action_change(["en"], "en-US", field="language")
         self.assertEqual(self.document.language, "en-US")
 
     def test_discussion_indexes_updated(self):
+        # The bare test site has no discussion settings records; register them
+        # before enabling discussion globally.
+        getUtility(IRegistry).registerInterface(IDiscussionSettings)
         # Allow discussion
         api.portal.set_registry_record(
             name="globally_enabled",
