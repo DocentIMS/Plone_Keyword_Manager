@@ -26,6 +26,14 @@ Changelog
 
 - CI: test against Plone 6.2 on Python 3.11/3.12 and update the GitHub
   Actions (checkout@v5, setup-plone@v3) off the deprecated Node 20 runtime.
+  Update constraints to 6.2-latest, drop the removed pip ``--install-option``,
+  and pin black/isort for deterministic linting.
+  [DocentIMS]
+
+- Migrate the ``Products`` namespace to PEP 420 native namespace packages
+  (remove ``src/Products/__init__.py`` and ``namespace_packages``, use
+  ``find_namespace:``). Required to import alongside Plone 6.2's native
+  ``Products.*`` packages.
   [DocentIMS]
 
 
