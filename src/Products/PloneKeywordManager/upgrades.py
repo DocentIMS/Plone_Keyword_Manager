@@ -6,6 +6,12 @@ default_profile = "profile-Products.PloneKeywordManager:default"
 uninstall_profile = "profile-Products.PloneKeywordManager:uninstall"
 
 
+def to_6001(context):
+    """Install the Keyword Manager user action."""
+    context.runImportStepFromProfile(default_profile, "actions")
+    logger.info("Installed Keyword Manager user action")
+
+
 def to_4(context):
     """Remove persistent tool"""
     tool_id = "portal_keyword_manager"

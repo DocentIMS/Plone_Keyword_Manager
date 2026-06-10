@@ -13,6 +13,15 @@
 
     <!-- Upgrade steps -->
     <gs:upgradeStep
+        title="Add Keyword Manager user action"
+        description="Install the 'Keyword Manager' user action link"
+        profile="Products.PloneKeywordManager:default"
+        source="6000"
+        destination="6001"
+        handler=".upgrades.to_6001" />
+
+    <!-- Upgrade steps -->
+    <gs:upgradeStep
         title="Remove tool"
         description="Remove Products.PloneKeywordManager persistent tool"
         profile="Products.PloneKeywordManager:default"

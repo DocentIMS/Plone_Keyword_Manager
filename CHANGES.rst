@@ -8,7 +8,8 @@ Changelog
   [jensens]
 
 - Add a "Keyword Manager" user action link, shown to members who have the
-  "PloneKeywordManager: Use PloneKeywordManager" permission.
+  "PloneKeywordManager: Use PloneKeywordManager" permission. Existing sites
+  get it via the profile upgrade step to 6001 (no reinstall needed).
   [DocentIMS]
 
 
