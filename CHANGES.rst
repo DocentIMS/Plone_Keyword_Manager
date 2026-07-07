@@ -18,6 +18,12 @@ Changelog
   helper ``_attr_from_accessor``.
   [DocentIMS]
 
+- Bug fix: the ``UnicodeDecodeError`` recovery path in ``change()`` tested
+  keywords with ``isinstance(k, str)`` and called ``k.decode()``. Under
+  Python 3 that raised ``AttributeError`` (``str`` has no ``decode``) instead
+  of recovering; the guard now tests for ``bytes``.
+  [DocentIMS]
+
 - Tests: cover the ``prefs_keywords_view`` ``__call__`` flow (empty keywords,
   invalid field, missing change-to, merge, delete), assert ``getScoredMatches``
   results, fix and re-enable the previously skipped monovalued-field test,

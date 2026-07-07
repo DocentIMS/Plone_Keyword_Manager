@@ -81,8 +81,12 @@ class KeywordManager:
         try:
             querySet = api.content.find(**query)
         except UnicodeDecodeError:
+            # Retry with any byte-string keywords decoded to text. Under
+            # Python 3 ``str`` has no ``decode`` method (and is already text),
+            # so the guard must test for ``bytes`` -- the previous ``str``
+            # check would raise ``AttributeError`` instead of recovering.
             old_keywords = [
-                k.decode("utf8") if isinstance(k, str) else k for k in old_keywords
+                k.decode("utf8") if isinstance(k, bytes) else k for k in old_keywords
             ]
             query[indexName] = old_keywords
             querySet = api.content.find(**query)
