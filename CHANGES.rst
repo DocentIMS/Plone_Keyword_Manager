@@ -24,6 +24,16 @@ Changelog
   of recovering; the guard now tests for ``bytes``.
   [DocentIMS]
 
+- Robustness: coerce request-supplied ``b_start`` / ``b_size`` /
+  ``num_similar`` / ``score`` to ``int`` / ``float`` in the view, so a
+  non-numeric query-string value falls back to the default instead of raising
+  a ``TypeError`` in the batching / scoring arithmetic.
+  [DocentIMS]
+
+- Metadata: update ``setup.cfg`` classifiers to the actually supported and
+  CI-tested matrix (Python 3.11/3.12, Plone 6.2).
+  [DocentIMS]
+
 - Tests: cover the ``prefs_keywords_view`` ``__call__`` flow (empty keywords,
   invalid field, missing change-to, merge, delete), assert ``getScoredMatches``
   results, fix and re-enable the previously skipped monovalued-field test,

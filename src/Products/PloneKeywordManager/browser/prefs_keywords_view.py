@@ -12,6 +12,26 @@ from ZTUtils import make_query
 import json
 
 
+def _to_int(value, default):
+    """Coerce a (possibly string, request-supplied) value to int.
+
+    Falls back to ``default`` when the value is missing or non-numeric, so a
+    crafted query string cannot break batching / scoring arithmetic.
+    """
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _to_float(value, default):
+    """Coerce a (possibly string, request-supplied) value to float."""
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
 class PrefsKeywordsView(BrowserView):
     """
     A view to manage the keywords in the portal
@@ -62,6 +82,8 @@ class PrefsKeywordsView(BrowserView):
         :param b_size: Batching support - size of page
         :return: a Products.CMFPlone Batch object containing the entire list of keywords.
         """
+        b_start = _to_int(b_start, 0)
+        b_size = _to_int(b_size, 30)
         search_string = self.request.get("s", None)
 
         if not search_string:
@@ -88,6 +110,8 @@ class PrefsKeywordsView(BrowserView):
         return self.pkm.getKeywordIndexes()
 
     def getScoredMatches(self, keyword, batch, num_similar, score):
+        num_similar = _to_int(num_similar, 7)
+        score = _to_float(score, 0.6)
         return self.pkm.getScoredMatches(
             keyword, batch, num_similar, score, context=self.context
         )
